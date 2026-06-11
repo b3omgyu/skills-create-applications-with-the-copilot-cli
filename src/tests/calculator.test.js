@@ -41,7 +41,11 @@ describe('Calculator compute()', () => {
     expect(() => compute('/', 5, 0)).toThrow('Division by zero');
   });
 
+  test('modulo with %', () => {
+    expect(compute('%', 5, 2)).toBe(1);
+  });
+
   test('unsupported operation throws', () => {
-    expect(() => compute('%', 5, 2)).toThrow(/Unsupported operation/);
+    expect(() => compute('unknown', 5, 2)).toThrow(/Unsupported operation/);
   });
 });

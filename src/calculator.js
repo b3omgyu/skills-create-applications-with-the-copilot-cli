@@ -30,6 +30,25 @@ function parseNumber(s) {
   return Number.isFinite(n) ? n : null;
 }
 
+// Additional math helper functions
+function modulo(a, b) {
+  if (b === 0) {
+    throw new Error('Modulo by zero');
+  }
+  return a % b;
+}
+
+function power(base, exponent) {
+  return Math.pow(base, exponent);
+}
+
+function squareRoot(n) {
+  if (n < 0) {
+    throw new Error('Square root of negative number');
+  }
+  return Math.sqrt(n);
+}
+
 function compute(op, a, b) {
   switch (op) {
     case '+':
@@ -48,6 +67,15 @@ function compute(op, a, b) {
         throw new Error('Division by zero');
       }
       return a / b;
+    case '%':
+    case 'mod':
+      return modulo(a, b);
+    case '^':
+    case 'pow':
+    case 'power':
+      return power(a, b);
+    case 'sqrt':
+      return squareRoot(a);
     default:
       throw new Error('Unsupported operation: ' + op);
   }
@@ -65,7 +93,7 @@ function runCli(argv) {
   if (args.length === 1) {
     const expr = args[0].trim();
     // match: number, optional spaces, operator, optional spaces, number
-    const m = expr.match(/^([-+]?[0-9]*\.?[0-9]+)\s*([+\-*/x])\s*([-+]?[0-9]*\.?[0-9]+)$/i);
+    const m = expr.match(/^([-+]?[0-9]*\.?[0-9]+)\s*([+\-*/x%^])\s*([-+]?[0-9]*\.?[0-9]+)$/i);
     if (m) {
       const a = parseNumber(m[1]);
       const opSym = m[2];
@@ -74,7 +102,7 @@ function runCli(argv) {
         console.error('Invalid numbers in expression');
         return 1;
       }
-      const opMap = { 'x': '*', 'X': '*'};
+      const opMap = { 'x': '*', 'X': '*' };
       const op = opMap[opSym] || opSym;
       try {
         const res = compute(op, a, b);
@@ -91,16 +119,36 @@ function runCli(argv) {
     }
   }
 
+  // If two args and first is sqrt, handle sqrt <n>
+  if (args.length === 2) {
+    const [p0, p1] = args;
+    if (/^(sqrt|√)$/i.test(p0)) {
+      const a = parseNumber(p1);
+      if (a === null) {
+        console.error('Invalid numeric argument');
+        return 1;
+      }
+      try {
+        const res = compute('sqrt', a);
+        console.log(res);
+        return 0;
+      } catch (err) {
+        console.error(err.message);
+        return 1;
+      }
+    }
+  }
+
   // If three args, interpret as: op a b OR a op b depending on position
   if (args.length === 3) {
     let [p0, p1, p2] = args;
     // If first is operator
     let op, aStr, bStr;
-    if (/^[+\-*/x]|^(add|sub|mul|div)$/i.test(p0)) {
+    if (/^[+\-*/x%^]|^(add|sub|mul|div|mod|pow|power|sqrt)$/i.test(p0)) {
       op = p0.toLowerCase();
       aStr = p1;
       bStr = p2;
-    } else if (/^[+\-*/x]|^(add|sub|mul|div)$/i.test(p1)) {
+    } else if (/^[+\-*/x%^]|^(add|sub|mul|div|mod|pow|power|sqrt)$/i.test(p1)) {
       // allow: a op b
       op = p1.toLowerCase();
       aStr = p0;
@@ -143,4 +191,7 @@ module.exports = {
   compute,
   parseNumber,
   runCli,
+  modulo,
+  power,
+  squareRoot,
 };
