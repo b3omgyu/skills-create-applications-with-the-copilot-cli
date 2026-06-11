@@ -45,6 +45,34 @@ describe('Calculator compute()', () => {
     expect(compute('%', 5, 2)).toBe(1);
   });
 
+  test('modulo with mod alias', () => {
+    expect(compute('mod', 10, 3)).toBe(1);
+  });
+
+  test('modulo by zero throws', () => {
+    expect(() => compute('mod', 5, 0)).toThrow('Modulo by zero');
+  });
+
+  test('power with ^', () => {
+    expect(compute('^', 2, 3)).toBe(8);
+  });
+
+  test('power with pow', () => {
+    expect(compute('pow', 2, 8)).toBe(256);
+  });
+
+  test('power with negative exponent', () => {
+    expect(compute('pow', 2, -1)).toBeCloseTo(0.5);
+  });
+
+  test('square root with sqrt', () => {
+    expect(compute('sqrt', 16)).toBe(4);
+  });
+
+  test('square root of negative number throws', () => {
+    expect(() => compute('sqrt', -9)).toThrow(/Square root/);
+  });
+
   test('unsupported operation throws', () => {
     expect(() => compute('unknown', 5, 2)).toThrow(/Unsupported operation/);
   });
